@@ -17,6 +17,7 @@ var bodyParser = require('body-parser');
 var app = express();
 
 var COMMENTS_FILE = path.join(__dirname, 'comments.json');
+var TODOS_FILE = path.join(__dirname, 'todos.json');
 
 app.set('port', (process.env.PORT || 3000));
 
@@ -31,6 +32,13 @@ app.get('/api/comments', function(req, res) {
   });
 });
 
+app.get('/api/todos', function(req, res) {
+  fs.readFile(TODOS_FILE, function(err, data) {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.json(JSON.parse(data));
+  });
+});
+
 app.post('/api/comments', function(req, res) {
   fs.readFile(COMMENTS_FILE, function(err, data) {
     var comments = JSON.parse(data);
@@ -38,6 +46,17 @@ app.post('/api/comments', function(req, res) {
     fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function(err) {
       res.setHeader('Cache-Control', 'no-cache');
       res.json(comments);
+    });
+  });
+});
+
+app.post('/api/todos', function(req, res) {
+  fs.readFile(TODOS_FILE, function(err, data) {
+    var todos = JSON.parse(data);
+    todos.push(req.body);
+    fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 4), function(err) {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.json(todos);
     });
   });
 });
